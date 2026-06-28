@@ -15,6 +15,33 @@ import string
 from urllib.parse import urlparse, quote
 from datetime import datetime, timedelta
 
+
+def _ensure_data_files():
+    """Ensure all required data files exist in /app/data on startup."""
+    import os
+    data_dir = '/app/data'
+    os.makedirs(data_dir, exist_ok=True)
+
+    files_to_create = {
+        'users.json': '{}',
+        'codes.json': '{}',
+        'banned_users.json': '{}',
+        'sites.txt': '',
+        'proxies.txt': '',
+        'premium_users.txt': '',
+        'verified_users.txt': '',
+    }
+
+    for filename, default_content in files_to_create.items():
+        filepath = os.path.join(data_dir, filename)
+        if not os.path.exists(filepath):
+            with open(filepath, 'w') as f:
+                f.write(default_content)
+            print(f"✅ Created {filename}")
+
+# Call this at module load time (before bot starts)
+_ensure_data_files()
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = '/app/data'  # Persistent volume mount
 
