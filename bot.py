@@ -16,6 +16,7 @@ from urllib.parse import urlparse, quote
 from datetime import datetime, timedelta
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = '/app/data'  # Persistent volume mount
 
 API_ID = int(os.getenv('API_ID', '39027759'))
 API_HASH = os.getenv('API_HASH', 'ea20df34f5f44c21c493eff664559ba3')
@@ -72,12 +73,12 @@ SHOPIFY_API_KEY       = os.getenv('SHOPIFY_API_KEY', 'afuona_2026')
 RAZORPAY_API_URL      = os.getenv('RAZORPAY_API_URL', 'https://notfrrx-razorpay.up.railway.app/rz')
 RAZORPAY_MERCHANT_URL = os.getenv('RAZORPAY_MERCHANT_URL', 'https://razorpay.me/@mstechnomedia')
 
-PREMIUM_USERS_FILE = os.path.join(BASE_DIR, 'premium_users.txt')
-SITES_FILE = os.path.join(BASE_DIR, 'sites.txt')
-PROXY_FILE = os.path.join(BASE_DIR, 'proxies.txt')
-CODES_FILE = os.path.join(BASE_DIR, 'codes.json')
-USERS_FILE   = os.path.join(BASE_DIR, 'users.json')
-BANNED_FILE  = os.path.join(BASE_DIR, 'banned_users.json')
+PREMIUM_USERS_FILE = os.path.join(DATA_DIR, 'premium_users.txt')
+SITES_FILE = os.path.join(DATA_DIR, 'sites.txt')
+PROXY_FILE = os.path.join(DATA_DIR, 'proxies.txt')
+CODES_FILE = os.path.join(DATA_DIR, 'codes.json')
+USERS_FILE   = os.path.join(DATA_DIR, 'users.json')
+BANNED_FILE  = os.path.join(DATA_DIR, 'banned_users.json')
 GROUP_LINK  = 'https://t.me/+td8TrhA9ctY3NTc0'
 
 PLANS = {
@@ -453,7 +454,7 @@ current_rzpxy_check = {
 HIT_LOG_CHANNEL = -1003723956550
 
 # ================== CHANNEL JOIN VERIFICATION ==================
-VERIFIED_USERS_FILE = os.path.join(BASE_DIR, 'verified_users.txt')
+VERIFIED_USERS_FILE = os.path.join(DATA_DIR, 'verified_users.txt')
 
 # In-memory cache — avoids disk read on every /start message
 _verified_users_cache: set = None
