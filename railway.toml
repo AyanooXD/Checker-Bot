@@ -1,7 +1,8 @@
 [build]
-builder = "nixpacks"
+builder = "railpack"
 
 [deploy]
-startCommand = "bash startup.sh"
+startCommand = "python3 -u bot.py"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
+
