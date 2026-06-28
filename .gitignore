@@ -1,0 +1,23 @@
+# Telegram session files (auto-regenerated on startup)
+*.session
+*.session-journal
+
+# Process ID file
+bot.pid
+
+# Log files
+*.log
+bot_output.log
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment files (use Railway Variables instead)
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db

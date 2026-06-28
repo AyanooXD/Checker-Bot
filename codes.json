@@ -1,0 +1,254 @@
+{
+  "VIP-YHPI-QI02": {
+    "plan": "VIP",
+    "used": true,
+    "used_by": "8456043064",
+    "used_at": "2026-06-10T22:18:32.245715",
+    "created_at": "2026-06-10T22:18:28.899388"
+  },
+  "PRE-WV5A-TKJI": {
+    "plan": "PREMIUM",
+    "used": true,
+    "used_by": "8484228345",
+    "used_at": "2026-06-11T05:34:15.915560",
+    "created_at": "2026-06-11T05:09:24.182286"
+  },
+  "VIP-VUUJ-O0UE": {
+    "plan": "VIP",
+    "used": true,
+    "used_by": "8484228345",
+    "used_at": "2026-06-11T08:53:51.583486",
+    "created_at": "2026-06-11T08:52:08.948982"
+  },
+  "PRE-K0WJ-PXCA": {
+    "plan": "PREMIUM",
+    "used": true,
+    "used_by": "7581803337",
+    "used_at": "2026-06-16T15:59:41.268517",
+    "created_at": "2026-06-11T15:43:13.838008"
+  },
+  "PRE-JY9W-FZWB": {
+    "plan": "PREMIUM",
+    "used": true,
+    "used_by": "8456043064",
+    "used_at": "2026-06-11T15:44:37.887236",
+    "created_at": "2026-06-11T15:44:30.106559"
+  },
+  "PRE-2NOD-1D87": {
+    "plan": "PREMIUM",
+    "used": false,
+    "used_by": null,
+    "used_at": null,
+    "created_at": "2026-06-11T15:44:43.028685"
+  },
+  "VIP-CSOG-E3Q2": {
+    "plan": "VIP",
+    "used": true,
+    "used_by": "8806534981",
+    "used_at": "2026-06-11T15:49:46.834202",
+    "created_at": "2026-06-11T15:46:56.378468"
+  },
+  "VIP-9CHQ-951I": {
+    "plan": "VIP",
+    "used": true,
+    "used_by": "7864855202",
+    "used_at": "2026-06-11T16:02:45.438855",
+    "created_at": "2026-06-11T16:01:36.682946"
+  },
+  "STA-FY3Q-IGYX": {
+    "plan": "STANDARD",
+    "used": true,
+    "used_by": "5553859074",
+    "used_at": "2026-06-11T16:12:38.424941",
+    "created_at": "2026-06-11T16:11:57.585471"
+  },
+  "BAS-3Y5E-LN9Y": {
+    "plan": "BASIC",
+    "used": false,
+    "used_by": null,
+    "used_at": null,
+    "created_at": "2026-06-11T18:05:47.227979"
+  },
+  "BAS-FTVT-Q9CZ": {
+    "plan": "BASIC",
+    "used": false,
+    "used_by": null,
+    "used_at": null,
+    "created_at": "2026-06-11T18:05:47.229409"
+  },
+  "BAS-UR1M-IK3D": {
+    "plan": "BASIC",
+    "used": true,
+    "used_by": "8456043064",
+    "used_at": "2026-06-12T02:52:08.089610",
+    "created_at": "2026-06-11T18:05:47.231156"
+  },
+  "BAS-GXIL-B8TF": {
+    "plan": "BASIC",
+    "used": true,
+    "used_by": "7830197835",
+    "used_at": "2026-06-12T06:49:15.887257",
+    "created_at": "2026-06-11T18:05:47.231788"
+  },
+  "BAS-NIWY-8020": {
+    "plan": "BASIC",
+    "used": false,
+    "used_by": null,
+    "used_at": null,
+    "created_at": "2026-06-11T18:05:47.232734"
+  },
+  "STA-LBVW-7ESX": {
+    "plan": "STANDARD",
+    "used": true,
+    "used_by": "7830197835",
+    "used_at": "2026-06-12T06:50:49.525255",
+    "created_at": "2026-06-12T04:31:48.583861"
+  },
+  "STA-JZPC-ILTG": {
+    "plan": "STANDARD",
+    "used": false,
+    "used_by": null,
+    "used_at": null,
+    "created_at": "2026-06-12T04:31:48.584888"
+  },
+  "STA-NVVO-8TN5": {
+    "plan": "STANDARD",
+    "used": false,
+    "used_by": null,
+    "used_at": null,
+    "created_at": "2026-06-12T04:31:48.585701"
+  },
+  "STA-CLHI-W2WO": {
+    "plan": "STANDARD",
+    "used": false,
+    "used_by": null,
+    "used_at": null,
+    "created_at": "2026-06-12T04:31:48.586324"
+  },
+  "STA-RZGS-WXRR": {
+    "plan": "STANDARD",
+    "used": false,
+    "used_by": null,
+    "used_at": null,
+    "created_at": "2026-06-12T04:31:48.587167"
+  },
+  "STA-TO5Q-OWTZ": {
+    "plan": "STANDARD",
+    "used": false,
+    "used_by": null,
+    "used_at": null,
+    "created_at": "2026-06-13T02:47:25.170223"
+  },
+  "STA-9PEQ-5QA4": {
+    "plan": "STANDARD",
+    "used": false,
+    "used_by": null,
+    "used_at": null,
+    "created_at": "2026-06-13T02:47:25.171663"
+  },
+  "STA-PKHS-2PV2": {
+    "plan": "STANDARD",
+    "used": false,
+    "used_by": null,
+    "used_at": null,
+    "created_at": "2026-06-13T02:47:25.172511"
+  },
+  "STA-VJ8E-KX7R": {
+    "plan": "STANDARD",
+    "used": false,
+    "used_by": null,
+    "used_at": null,
+    "created_at": "2026-06-13T02:47:25.173316"
+  },
+  "STA-RABJ-I8IV": {
+    "plan": "STANDARD",
+    "used": true,
+    "used_by": "6106971056",
+    "used_at": "2026-06-19T11:22:57.129951",
+    "created_at": "2026-06-13T02:47:25.174155"
+  },
+  "STA-6335-TDWE": {
+    "plan": "STANDARD",
+    "used": false,
+    "used_by": null,
+    "used_at": null,
+    "created_at": "2026-06-13T02:47:25.175051"
+  },
+  "STA-P7RR-BZX0": {
+    "plan": "STANDARD",
+    "used": true,
+    "used_by": "8138607765",
+    "used_at": "2026-06-13T02:54:28.724631",
+    "created_at": "2026-06-13T02:47:25.175569"
+  },
+  "STA-F2WS-J3JL": {
+    "plan": "STANDARD",
+    "used": false,
+    "used_by": null,
+    "used_at": null,
+    "created_at": "2026-06-13T02:47:25.176560"
+  },
+  "STA-XESN-Y5OH": {
+    "plan": "STANDARD",
+    "used": true,
+    "used_by": "8600949160",
+    "used_at": "2026-06-23T19:04:15.870044",
+    "created_at": "2026-06-13T02:47:25.177449"
+  },
+  "STA-PFH2-CEO2": {
+    "plan": "STANDARD",
+    "used": true,
+    "used_by": "832990474",
+    "used_at": "2026-06-22T20:50:48.963481",
+    "created_at": "2026-06-13T02:47:25.178369"
+  },
+  "BAS-AP5Y-CQUJ": {
+    "plan": "BASIC",
+    "used": true,
+    "used_by": "8456043064",
+    "used_at": "2026-06-13T18:18:52.689643",
+    "created_at": "2026-06-13T18:17:56.232400"
+  },
+  "STA-6IAQ-M5K4": {
+    "plan": "STANDARD",
+    "used": false,
+    "used_by": null,
+    "used_at": null,
+    "created_at": "2026-06-13T18:20:24.459695"
+  },
+  "STA-2IHE-PSF7": {
+    "plan": "STANDARD",
+    "used": false,
+    "used_by": null,
+    "used_at": null,
+    "created_at": "2026-06-13T18:20:24.461299"
+  },
+  "STA-P5IQ-907N": {
+    "plan": "STANDARD",
+    "used": true,
+    "used_by": "832990474",
+    "used_at": "2026-06-13T18:22:21.671818",
+    "created_at": "2026-06-13T18:20:24.462590"
+  },
+  "VIP-UYE2-TDEO": {
+    "plan": "VIP",
+    "used": true,
+    "used_by": "7825922818",
+    "used_at": "2026-06-17T07:22:30.479473",
+    "created_at": "2026-06-16T14:12:34.685597"
+  },
+  "VIP-CMU5-1B50": {
+    "plan": "VIP",
+    "used": true,
+    "used_by": "8456043064",
+    "used_at": "2026-06-17T02:23:08.878854",
+    "created_at": "2026-06-17T02:22:58.585478"
+  },
+  "VIP-058S-5CYC": {
+    "plan": "VIP",
+    "used": true,
+    "used_by": "8456043064",
+    "used_at": "2026-06-28T04:04:10.740959",
+    "created_at": "2026-06-28T04:04:04.139842"
+  }
+}
