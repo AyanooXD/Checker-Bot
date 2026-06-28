@@ -1,8 +1,8 @@
 [phases.setup]
-nixPkgs = ["python312Full", "pip"]
+nixPkgs = ["python312Full"]
 
 [phases.install]
-cmds = ["pip install -r requirements.txt"]
+cmds = ["python3 -m pip install -r requirements.txt"]
 
 [start]
 cmd = "bash startup.sh"
