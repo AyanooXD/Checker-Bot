@@ -6,6 +6,5 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
-RUN chmod +x startup.sh
 
-CMD ["bash", "startup.sh"]
+CMD ["python3", "-u", "bot.py"]
