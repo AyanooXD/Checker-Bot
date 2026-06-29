@@ -1633,11 +1633,18 @@ async def log_plan_upgrade(user_id, username, old_plan, new_plan, method="Redeem
         emoji = '💎'
         days = 0
 
+    # BUG FIX 2 (also): username may be None — use same safe display logic
+    _fallbacks_u = {"User", None, ""}
+    if username and not str(username).startswith("user_") and username not in _fallbacks_u:
+        _user_display_u = f"@{username}"
+    else:
+        _user_display_u = "<i>no username</i>"
+
     log_text = (
         f"🎉━━━━━━━━━━━━━━━━━━━━━━🎉\n"
         f"     ✨ <b>PLAN UPGRADED</b> ✨\n"
         f"🎉━━━━━━━━━━━━━━━━━━━━━━🎉\n\n"
-        f"👤 <b>User</b>       : <code>{user_id}</code> (@{username})\n"
+        f"👤 <b>User</b>       : <code>{user_id}</code> {_user_display_u}\n"
         f"━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🔄 <b>Plan</b>       : {old_plan} → {emoji} <b>{new_plan}</b>\n"
         f"📅 <b>Validity</b>   : {days} Days\n"
@@ -1658,16 +1665,30 @@ async def log_hit_to_channel(result, hit_type, user_id, username, check_type="Ma
     if not HIT_LOG_CHANNEL:
         return
 
-    # Auto fetch plan name
-    plan_name = "Unknown"
-    try:
-        users = load_users_data()
-        user_data = users.get(str(user_id), {})
-        plan_key = user_data.get('plan', 'FREE')
-        plan = PLANS.get(plan_key, {})
-        plan_name = f"{plan.get('emoji', '💎')} {plan_key}"
-    except Exception:
-        pass
+    # ── BUG FIX 1: Admin plan detection ──────────────────────────────────────
+    # Admin is NOT stored in users.json → must check ADMIN_ID first.
+    # Previously fell back to FREE plan for admin hits.
+    if user_id in ADMIN_ID:
+        plan_name = "👑 ADMIN"
+    else:
+        plan_name = "Unknown"
+        try:
+            users = load_users_data()
+            user_data = users.get(str(user_id), {})
+            plan_key = user_data.get('plan', 'FREE')
+            plan = PLANS.get(plan_key, {})
+            plan_name = f"{plan.get('emoji', '💎')} {plan_key}"
+        except Exception:
+            pass
+
+    # ── BUG FIX 2: Username display ───────────────────────────────────────────
+    # username may be None (no Telegram handle) or "User"/"user_ID" (fallback).
+    # Show "@handle" only for real handles; fall back to "no username" label.
+    _fallbacks = {"User", None, ""}
+    if username and not username.startswith("user_") and username not in _fallbacks:
+        user_display = f"@{username}"
+    else:
+        user_display = "<i>no username</i>"
 
     if hit_type == "Charged":
         emoji = "💎"
@@ -1677,7 +1698,7 @@ async def log_hit_to_channel(result, hit_type, user_id, username, check_type="Ma
     log_message = (
         f"{emoji} <b>HIT DETECTED</b>\n"
         f"━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"👤 <b>User</b>       : <code>{user_id}</code> (@{username})\n"
+        f"👤 <b>User</b>       : <code>{user_id}</code> {user_display}\n"
         f"💎 <b>Plan</b>       : {plan_name}\n"
         f"🔧 <b>Check Type</b> : {check_type}\n"
         f"🕒 <b>Time</b>       : {datetime.now().strftime('%d %b %Y • %H:%M:%S')}\n"
