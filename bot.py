@@ -175,29 +175,15 @@ def _shared_http_session():
 # Hard limit: max 30 concurrent API calls across ALL users combined.
 # Prevents API overload regardless of how many users are checking simultaneously.
 _GLOBAL_MAX_CONCURRENT = int(os.getenv('BOT_GLOBAL_CONCURRENT', '100'))
-# FIX #4/#9: Lazily init semaphores on first use to avoid module-level event-loop binding.
-# Telethon's bot.run_until_disconnected() creates its own asyncio loop; semaphores
-# created before that loop runs would be bound to the wrong (or no) loop in Python ≥3.10.
-_global_api_semaphore: asyncio.Semaphore = None  # type: ignore[assignment]
+# Global semaphore: hard cap on total concurrent API calls across all users.
+# asyncio primitives created at module level attach to the running event loop
+# on first use in Python 3.10+ — safe with Telethon's run_until_disconnected().
+_global_api_semaphore = asyncio.Semaphore(_GLOBAL_MAX_CONCURRENT)
 
 # ── Dedicated semaphore for site/proxy checking (separate from card API) ──
 # Does NOT compete with /chk or /mrz card-checking slots.
 _SITE_CHECK_MAX = int(os.getenv('BOT_SITE_CONCURRENT', '20'))
-_site_check_semaphore: asyncio.Semaphore = None  # type: ignore[assignment]
-
-def _get_global_semaphore() -> asyncio.Semaphore:
-    """Lazily create the global API semaphore on the running event loop (FIX #4)."""
-    global _global_api_semaphore
-    if _global_api_semaphore is None:
-        _global_api_semaphore = asyncio.Semaphore(_GLOBAL_MAX_CONCURRENT)
-    return _global_api_semaphore
-
-def _get_site_semaphore() -> asyncio.Semaphore:
-    """Lazily create the site-check semaphore on the running event loop (FIX #9)."""
-    global _site_check_semaphore
-    if _site_check_semaphore is None:
-        _site_check_semaphore = asyncio.Semaphore(_SITE_CHECK_MAX)
-    return _site_check_semaphore
+_site_check_semaphore = asyncio.Semaphore(_SITE_CHECK_MAX)
 
 # ── Layer 2: Auto Per-User Cap ───────────────────────────────────────────────
 # Dynamically allocates workers per user based on how many users are active.
@@ -205,34 +191,19 @@ def _get_site_semaphore() -> asyncio.Semaphore:
 _MAX_WORKERS_SOLO = 25          # max workers when only 1 user checking
 _MIN_WORKERS_PER_USER = 5       # minimum workers per user even under heavy load
 _active_mass_users = set()      # set of user_ids currently running /chk
-# FIX #4 (also): lazy-init user lock
-_user_lock: asyncio.Lock = None  # type: ignore[assignment]
-
-def _get_user_lock() -> asyncio.Lock:
-    global _user_lock
-    if _user_lock is None:
-        _user_lock = asyncio.Lock()
-    return _user_lock
-# FIX #10: lazy-init redeem lock to avoid module-level event-loop binding
-_redeem_lock: asyncio.Lock = None  # type: ignore[assignment]
-
-def _get_redeem_lock() -> asyncio.Lock:
-    """Lazily create the redeem lock on the running event loop (FIX #10)."""
-    global _redeem_lock
-    if _redeem_lock is None:
-        _redeem_lock = asyncio.Lock()
-    return _redeem_lock
+_user_lock = asyncio.Lock()
+_redeem_lock = asyncio.Lock()  # Prevents double-redeem race condition
 
 
 async def register_mass_user(user_id: int):
     """Register a user as actively running mass check."""
-    async with _get_user_lock():
+    async with _user_lock:
         _active_mass_users.add(user_id)
 
 
 async def unregister_mass_user(user_id: int):
     """Unregister a user when mass check completes."""
-    async with _get_user_lock():
+    async with _user_lock:
         _active_mass_users.discard(user_id)
 
 
@@ -319,7 +290,7 @@ async def check_cards_batch(cards: list, sites: list, proxies: list, lane="mass"
 
 async def _checked_api_call(card, site, proxy, lane, uid):
     """Single API call wrapped with global semaphore + response time tracking."""
-    async with _get_global_semaphore():
+    async with _global_api_semaphore:
         # FIX #1: Timer starts INSIDE semaphore — measures actual API latency, not queue wait
         _start = time.time()
         result = await check_card(card, site, proxy, lane=lane, uid=uid)
