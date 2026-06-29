@@ -5196,7 +5196,9 @@ async def rz_command(event):
     try:
         result = await check_razorpay_with_retry(card, proxies, max_retries=3)
         brand, bin_type, level, bank, country, flag = await get_bin_info(card.split('|')[0])
-        increment_cc_used(user_id)
+        # FIX C: Don't count Site Errors as a used CC check
+        if result.get('status') not in ('Site Error',) or result.get('gateway', 'Unknown') not in ('Unknown', '-'):
+            increment_cc_used(user_id)
 
         if result['status'] == 'Charged':
             status_header = "💎 𝑪𝑯𝑨𝑹𝑮𝑬𝑫"
