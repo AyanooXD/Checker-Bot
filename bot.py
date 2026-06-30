@@ -1605,9 +1605,16 @@ async def log_plan_upgrade(user_id, username, old_plan, new_plan, method="Redeem
         days = 0
 
     # BUG FIX 2 (also): username may be None — use same safe display logic
-    _fallbacks_u = {"User", None, ""}
-    if username and not str(username).startswith("user_") and username not in _fallbacks_u:
-        _user_display_u = f"@{username}"
+    _is_real_handle_u = (
+        username and
+        username not in {"User", None, ""} and
+        not str(username).startswith("user_")
+    )
+    if _is_real_handle_u:
+        if ' ' in str(username) or not str(username).replace('_','').isalnum():
+            _user_display_u = f"<b>{username}</b>"
+        else:
+            _user_display_u = f"@{username}"
     else:
         _user_display_u = "<i>no username</i>"
 
@@ -1655,9 +1662,26 @@ async def log_hit_to_channel(result, hit_type, user_id, username, check_type="Ma
     # ── BUG FIX 2: Username display ───────────────────────────────────────────
     # username may be None (no Telegram handle) or "User"/"user_ID" (fallback).
     # Show "@handle" only for real handles; fall back to "no username" label.
-    _fallbacks = {"User", None, ""}
-    if username and not username.startswith("user_") and username not in _fallbacks:
-        user_display = f"@{username}"
+    # Show @handle for real Telegram handles, first_name as plain text,
+    # or "no username" if only a fallback ID string is available.
+    _is_real_handle = (
+        username and
+        username not in {"User", None, ""} and
+        not str(username).startswith("user_")
+    )
+    _is_first_name = (
+        username and
+        username not in {"User", None, ""} and
+        str(username).startswith("user_") is False and
+        not username.startswith("@")
+    )
+    if _is_real_handle:
+        # Could be a @handle (no spaces) or a first_name (may have spaces)
+        if ' ' in username or not username.replace('_','').isalnum():
+            # Has spaces or special chars → it's a first_name, not a handle
+            user_display = f"<b>{username}</b>"
+        else:
+            user_display = f"@{username}"
     else:
         user_display = "<i>no username</i>"
 
@@ -1867,10 +1891,13 @@ async def test_site(site, proxy, need_price=False):
                     'ORDER_PLACED', 'CHARGED', 'ORDER_PAID',
                 ))
             )
+            # Extract gateway from response for gateway filtering
+            raw_gateway_t = str(raw.get('Gateway', raw.get('gateway', ''))).strip()
+
             if _is_alive:
-                return {'site': site, 'status': 'alive', 'price': raw_price}
+                return {'site': site, 'status': 'alive', 'price': raw_price, 'gateway': raw_gateway_t}
             else:
-                return {'site': site, 'status': 'dead', 'price': '-'}
+                return {'site': site, 'status': 'dead', 'price': '-', 'gateway': raw_gateway_t}
         else:
             # Use fast /test_site endpoint (no price)
             url = f'{SITE_TEST_URL}?cc=4111111111111111|12|2030|123&site={quote(clean_site, safe="://?=&@")}'
@@ -1881,19 +1908,20 @@ async def test_site(site, proxy, need_price=False):
             _session = _shared_http_session()
             async with _session.get(url, timeout=timeout) as resp:
                 if resp.status != 200:
-                    return {'site': site, 'status': 'dead', 'price': '-'}
+                    return {'site': site, 'status': 'dead', 'price': '-', 'gateway': ''}
                 try:
                     raw = await resp.json()
                 except Exception:
-                    return {'site': site, 'status': 'dead', 'price': '-'}
+                    return {'site': site, 'status': 'dead', 'price': '-', 'gateway': ''}
 
-            # ── Capitalized API keys: Status, Response ──
+            # ── Capitalized API keys: Status, Response, Gateway ──
             _raw_st_f    = str(raw.get('Status',   raw.get('status',  ''))).strip()
             response_msg = raw.get('Response',  raw.get('message', ''))
             _rmsg_f      = str(response_msg).strip().upper()
+            raw_gateway_f = str(raw.get('Gateway', raw.get('gateway', ''))).strip()
 
             if _is_dead_keyword(response_msg):
-                return {'site': site, 'status': 'dead', 'price': '-'}
+                return {'site': site, 'status': 'dead', 'price': '-', 'gateway': raw_gateway_f}
 
             # Site alive: Status="true" OR Response is a card-level decline
             _is_alive_f = (
@@ -1907,12 +1935,12 @@ async def test_site(site, proxy, need_price=False):
                 ))
             )
             if _is_alive_f:
-                return {'site': site, 'status': 'alive', 'price': '-'}
+                return {'site': site, 'status': 'alive', 'price': '-', 'gateway': raw_gateway_f}
             else:
-                return {'site': site, 'status': 'dead', 'price': '-'}
+                return {'site': site, 'status': 'dead', 'price': '-', 'gateway': raw_gateway_f}
 
     except Exception:
-        return {'site': site, 'status': 'dead', 'price': '-'}
+        return {'site': site, 'status': 'dead', 'price': '-', 'gateway': ''}
 
 async def test_proxy(proxy):
     try:
@@ -2525,7 +2553,11 @@ async def single_cc_check(event):
 
     try:
         sender = await event.get_sender()
-        username = sender.username if sender.username else f"user_{user_id}"
+        username = (
+            sender.username
+            if sender and sender.username
+            else (getattr(sender, "first_name", None) or f"user_{user_id}")
+        )
     except Exception:
         username = f"user_{user_id}"
 
@@ -2665,7 +2697,11 @@ async def check_command(event):
 
     try:
         sender = await event.get_sender()
-        username = sender.username if sender.username else f"user_{user_id}"
+        username = (
+            sender.username
+            if sender and sender.username
+            else (getattr(sender, "first_name", None) or f"user_{user_id}")
+        )
     except Exception:
         username = f"user_{user_id}"
 
@@ -4120,12 +4156,24 @@ async def addsites_filter_callback(event):
         parse_mode='html'
     )
 
-    alive_sites   = []
-    filtered_out  = []
-    dead_sites    = []
-    checked_count = [0]
+    alive_sites      = []
+    filtered_out     = []   # price-filtered
+    gateway_filtered = []   # gateway-filtered (Authorize.net etc.)
+    dead_sites       = []
+    checked_count    = [0]
     lock = asyncio.Lock()
     last_edit_time = [0.0]
+
+    # Gateways to block from being added to DB
+    # Authorize.net sites typically have lower success rates for card testing
+    _BLOCKED_GATEWAYS = frozenset({
+        'AUTHORIZE.NET', 'AUTHORIZE NET', 'AUTHORIZENET',
+        'AUTHORIZE_NET', 'AUTH.NET',
+    })
+
+    def _is_blocked_gateway(gw: str) -> bool:
+        """Return True if this gateway should be filtered out."""
+        return gw.upper().strip() in _BLOCKED_GATEWAYS
 
     # Concurrency matches API's mass lane limit (30 slots).
     # Beyond this, requests just queue at the API semaphore.
@@ -4169,13 +4217,17 @@ async def addsites_filter_callback(event):
                 checked_count[0] += 1
                 cnt = checked_count[0]
                 if res['status'] == 'alive':
-                    if price_in_range(res['price'], min_p, max_p):
+                    _gw = res.get('gateway', '')
+                    if _is_blocked_gateway(_gw):
+                        # FEATURE: Authorize.net (and other blocked gateways) → ignore, don't add
+                        gateway_filtered.append(res['site'])
+                    elif price_in_range(res['price'], min_p, max_p):
                         alive_sites.append(res['site'])
                     else:
                         filtered_out.append(res['site'])
                 else:
                     dead_sites.append(res['site'])
-                snap = (cnt, len(alive_sites), len(filtered_out), len(dead_sites))
+                snap = (cnt, len(alive_sites), len(filtered_out), len(gateway_filtered), len(dead_sites))
 
             now = time.time()
             if (snap[0] % 5 == 0 or snap[0] == total) and (now - last_edit_time[0] >= 1.2 or snap[0] == total):
@@ -4189,8 +4241,9 @@ async def addsites_filter_callback(event):
                         f"━━━━━━━━━━━━━━━━━━━━━━\n"
                         f"📊 Progress » {snap[0]}/{total}\n"
                         f"✅ Alive    » {snap[1]}\n"
-                        f"🚫 Filtered » {snap[2]}\n"
-                        f"❌ Dead     » {snap[3]}"
+                        f"🚫 Price    » {snap[2]}\n"
+                        f"🏦 Auth.net » {snap[3]}\n"
+                        f"❌ Dead     » {snap[4]}"
                     ),
                     buttons=[[Button.inline("STOP", b"stop_addsites", style="danger")]],
                     parse_mode='html'
@@ -4224,7 +4277,8 @@ async def addsites_filter_callback(event):
             f"💰 Filter     » {filter_label}\n"
             f"📊 Checked    » {checked_count[0]}/{len(new_sites)}\n"
             f"✅ Matched    » {len(alive_sites)}\n"
-            f"🚫 Filtered   » {len(filtered_out)}\n"
+            f"🚫 Price      » {len(filtered_out)}\n"
+            f"🏦 Auth.net   » {len(gateway_filtered)}\n"
             f"❌ Dead       » {len(dead_sites)}\n"
             f"━━━━━━━━━━━━━━━━━━━━━━\n"
             f"💾 Saved {saved_count} new sites to DB."
@@ -4254,7 +4308,8 @@ async def addsites_filter_callback(event):
         f"━━━━━━━━━━━━━━━━━━━━━━\n"
         f"📤 Received   » {len(new_sites)}\n"
         f"✅ Matched    » {len(alive_sites)}\n"
-        f"🚫 Filtered   » {len(filtered_out)}\n"
+        f"🚫 Price      » {len(filtered_out)}\n"
+        f"🏦 Auth.net   » {len(gateway_filtered)} ignored\n"
         f"❌ Dead       » {len(dead_sites)}\n"
         f"➕ New added  » {newly_added}\n"
         f"📦 Total DB   » {len(merged_sites)}\n"
@@ -5107,7 +5162,11 @@ async def rz_command(event):
 
     try:
         sender = await event.get_sender()
-        username = sender.username if sender.username else f"user_{user_id}"
+        username = (
+            sender.username
+            if sender and sender.username
+            else (getattr(sender, "first_name", None) or f"user_{user_id}")
+        )
     except Exception:
         username = f"user_{user_id}"
 
@@ -5236,7 +5295,11 @@ async def mrz_command(event):
 
     try:
         sender = await event.get_sender()
-        username = sender.username if sender.username else f"user_{user_id}"
+        username = (
+            sender.username
+            if sender and sender.username
+            else (getattr(sender, "first_name", None) or f"user_{user_id}")
+        )
     except Exception:
         username = f"user_{user_id}"
 
