@@ -4343,7 +4343,7 @@ async def get_sites_command(event):
         )
     else:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = os.path.join(BASE_DIR, f"sites_{timestamp}.txt")
+        filename = os.path.join('/tmp', f"sites_{timestamp}.txt")  # FIX: /tmp not BASE_DIR
 
         async with aiofiles.open(filename, 'w') as f:
             for i, site in enumerate(current_sites):
